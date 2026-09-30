@@ -13,6 +13,7 @@ window.HISTORICO = {
       "freteMediano": 32.45,
       "freteSobreVenda": 0.1398,
       "margemMedia": 0.0779,
+      "lucroSobreCusto": 0.103,
       "ticketMediano": 352.11,
       "faixas": [
         {
@@ -52,6 +53,7 @@ window.HISTORICO = {
       "freteMediano": 0.0,
       "freteSobreVenda": 0.0,
       "margemMedia": 0.0744,
+      "lucroSobreCusto": 0.0931,
       "ticketMediano": 340.26,
       "faixas": [
         {
@@ -91,6 +93,7 @@ window.HISTORICO = {
       "freteMediano": 0.0,
       "freteSobreVenda": 0.0,
       "margemMedia": 0.0758,
+      "lucroSobreCusto": 0.097,
       "ticketMediano": 217.08,
       "faixas": [
         {
@@ -123,6 +126,7 @@ window.HISTORICO = {
       "freteMediano": 26.5,
       "freteSobreVenda": 0.1508,
       "margemMedia": 0.0471,
+      "lucroSobreCusto": 0.0585,
       "ticketMediano": 211.46,
       "faixas": [
         {
@@ -155,6 +159,7 @@ window.HISTORICO = {
       "freteMediano": 0.0,
       "freteSobreVenda": 0.0,
       "margemMedia": 0.054,
+      "lucroSobreCusto": 0.0747,
       "ticketMediano": 222.96,
       "faixas": [
         {

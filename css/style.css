@@ -193,6 +193,8 @@ input[type="text"] { font-variant-numeric: tabular-nums; }
 input[type="text"]::placeholder { color: #c7c7cc; }
 input[type="text"]:hover, select:hover { border-color: #b8b8bf; }
 input[type="text"]:focus, select:focus { outline: none; border-color: var(--brand); box-shadow: var(--ring); }
+input[type="text"]:disabled { background: var(--surface-subtle); border-color: var(--divider); color: var(--text-2); cursor: not-allowed; }
+.input-wrap:has(input:disabled)::before { color: #c7c7cc; }
 
 .input-wrap { position: relative; }
 .input-wrap::before, .input-wrap::after {
@@ -366,6 +368,7 @@ select { padding-right: 40px; font-size: 0.98rem; text-overflow: ellipsis; curso
   background: var(--success-tint);
   color: var(--success-text);
 }
+.selo-neutro { background: var(--brand-tint); color: var(--brand-hover); }
 
 /* ---------- Histórico ---------- */
 .kpis {

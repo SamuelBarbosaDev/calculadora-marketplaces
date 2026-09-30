@@ -1,6 +1,6 @@
 # Calculadora de Preços para Marketplaces
 
-Site estático (HTML, CSS e JavaScript puro, sem build) que sugere o **valor final de venda** para Shopee, Amazon, Mercado Livre, Temu e TikTok Shop a partir do custo, do frete e da margem desejada, sempre embutindo **5% de imposto** sobre a venda.
+Site estático (HTML, CSS e JavaScript puro, sem build) que sugere o **valor final de venda** para Shopee, Amazon, Mercado Livre, Temu e TikTok Shop a partir do custo, do frete e da margem desejada, embutindo o imposto sobre a venda (padrão **5%**, editável em *Ajustes avançados*). Na Temu, onde a plataforma define o preço ao consumidor, a calculadora mostra o **valor a receber**.
 
 ## Publicar no GitHub Pages
 
@@ -27,14 +27,26 @@ Para testar localmente, basta abrir o `index.html` no navegador.
 
 Cada marketplace é descrito como faixas de preço, e cada faixa tem uma tarifa percentual e uma tarifa fixa:
 
-```
-Preço = Custo + Custo extra + Frete + (tarifa% × Preço + tarifa fixa) + 5% × Preço + Outros% × Preço + Lucro
+```text
+Preço = Custo + Custo extra + Frete + (tarifa% × Preço + tarifa fixa) + Imposto% × Preço + Outros% × Preço + Lucro
 Lucro = Margem% × Preço
 
-⇒ Preço = (Custo + Custo extra + Frete + tarifa fixa) / (1 − tarifa% − 5% − Outros% − Margem%)
+⇒ Preço = (Custo + Custo extra + Frete + tarifa fixa) / (1 − tarifa% − Imposto% − Outros% − Margem%)
 ```
 
 A margem é calculada **sobre o preço de venda**, igual à coluna `LUCRO %` da planilha. Como a tarifa muda conforme o preço, a fórmula é resolvida em cada faixa e fica valendo o **menor preço que atinge a margem**. Quando o preço cai numa virada de faixa (por exemplo, a Shopee passa de R$ 4 para R$ 16 de tarifa fixa em R$ 80), a calculadora pula para a faixa seguinte. Também é mostrado um "preço comercial" terminado em ,90 que mantém a margem.
+
+### Temu: valor a receber
+
+Na Temu o preço ao consumidor é definido pela plataforma, e o frete é pago pelo cliente. Por isso a calculadora mostra o **valor a receber** (preço de fornecimento), sem comissão nem frete, aplicando lucro e imposto em cascata sobre o custo:
+
+```text
+Valor a receber = (Custo + Custo extra) × (1 + Margem%) × (1 + Imposto%) × (1 + Outros%)
+
+Ex.: R$ 300 × 1,15 × 1,05 = R$ 362,25   (lucro R$ 45,00 · imposto R$ 17,25)
+```
+
+Aqui a margem é **sobre o custo**, e não sobre a venda. O campo de frete fica bloqueado.
 
 ### Regras oficiais (set/2026)
 
@@ -44,7 +56,7 @@ A margem é calculada **sobre o preço de venda**, igual à coluna `LUCRO %` da 
 | **Shopee** (CNPJ, desde 01/03/2026) | < R$ 8: 50% · R$ 8–79,99: 20% + R$ 4 · R$ 80–99,99: 14% + R$ 16 · R$ 100–199,99: 14% + R$ 20 · ≥ R$ 200: 14% + R$ 26. Sem teto. |
 | **TikTok Shop** (desde 15/07/2026) | < R$ 50: 10% + R$ 4 · ≥ R$ 50: 6% + R$ 6. Soma-se 6% do Programa de Frete Grátis. |
 | **Amazon** | Comissão da categoria (padrão 13,5%, a mais comum no histórico, e editável). No DBA, abaixo de R$ 79 o envio é fixo: R$ 4,50 (< R$ 30), R$ 6,50 (R$ 30–49,99) e R$ 6,75 (R$ 50–78,99). |
-| **Temu** | 16% de comissão (editável), cobrada depois da isenção dos primeiros 30 dias. |
+| **Temu** | Sem comissão para o vendedor e frete pago pelo cliente. Mostra o valor a receber (ver acima). |
 
 ### Modo "Seu histórico real"
 
@@ -56,7 +68,7 @@ Neste modo a calculadora usa a **taxa efetiva que a empresa realmente pagou**, c
 | Shopee | 13,8% | A regra 20% + R$ 4 bate em 81% dos pedidos até R$ 80. Acima de R$ 100 a taxa real fica de R$ 15 a R$ 20 abaixo da tabela (subsídios e campanhas). |
 | TikTok Shop | 14,6% | Bate exatamente com a regra oficial: 12% + R$ 4 antes de 15/07 e 12% + R$ 6 depois. |
 | Amazon | 14,2% | Comissões de 12%, 12,5%, 13,5% e 16,5%. O frete abaixo de R$ 79 é exatamente a tabela DBA. |
-| Temu | 19,4% | A planilha não registra taxa. A retenção efetiva foi deduzida de `preço − custo − lucro − 5%`. |
+| Temu | — | Não se aplica: a plataforma define o preço ao consumidor. O lucro médio foi de 7,5% sobre o custo. |
 
 Na planilha, o lucro das contas de TikTok e Temu já desconta 5% de imposto; nas demais contas, não.
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Calculadora de Preços · Led.Tools</title>
-  <meta name="description" content="Calcule o preço de venda ideal para Shopee, Amazon, Mercado Livre, Temu e TikTok Shop, com comissões, frete, 5% de imposto e margem de lucro.">
+  <meta name="description" content="Calcule o preço de venda ideal para Shopee, Amazon, Mercado Livre, Temu e TikTok Shop, com comissões, frete, imposto e margem de lucro.">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" href="img/favicon.ico" sizes="16x16 32x32 48x48">
   <link rel="stylesheet" href="css/style.css">
@@ -88,7 +88,7 @@
         <p id="frete-dica" class="dica"></p>
 
         <label class="campo campo-margem">
-          <span class="campo-rotulo">Margem de lucro desejada <small>sobre a venda</small></span>
+          <span class="campo-rotulo">Margem de lucro desejada <small id="margem-base">sobre a venda</small></span>
           <div class="input-wrap sufixo" data-sufixo="%"><input id="margem" type="text" inputmode="decimal" placeholder="15" value="15"></div>
         </label>
 
@@ -99,6 +99,10 @@
         <div class="expand" id="bloco-avancado">
           <div class="expand-in">
             <div class="campos-grid pt">
+              <label class="campo">
+                <span class="campo-rotulo">Imposto <small id="imposto-base">sobre a venda</small></span>
+                <div class="input-wrap sufixo" data-sufixo="%"><input id="imposto" type="text" inputmode="decimal" placeholder="5" value="5"></div>
+              </label>
               <label class="campo">
                 <span class="campo-rotulo">Outros custos <small>ads, afiliados</small></span>
                 <div class="input-wrap sufixo" data-sufixo="%"><input id="outros" type="text" inputmode="decimal" placeholder="0"></div>
@@ -124,7 +128,7 @@
 
     <div class="coluna-resultado">
       <section class="card card-resultado" id="card-resultado" aria-live="polite">
-        <p class="res-rotulo">Preço de venda sugerido</p>
+        <p class="res-rotulo" id="res-rotulo">Preço de venda sugerido</p>
         <p id="preco" class="preco">—</p>
         <p id="preco-arred" class="arred"></p>
         <p id="erro" class="erro" hidden></p>
@@ -139,7 +143,7 @@
           <span class="dica">mesmo custo e margem</span>
         </div>
         <ul class="comparativo" id="comparativo"></ul>
-        <p class="dica">Shopee, TikTok Shop e Temu usam frete R$ 0 (coberto pelo programa de frete grátis), exceto quando selecionados.</p>
+        <p class="dica">Shopee e TikTok Shop usam frete R$ 0 (coberto pelo programa de frete grátis), exceto quando selecionados. Na Temu, o valor mostrado é o que você recebe; o preço ao cliente é definido pela plataforma.</p>
       </section>
 
       <section class="card">
@@ -155,7 +159,7 @@
   </footer>
 
   <button type="button" class="barra-preco" id="barra-preco" aria-label="Ver detalhes do preço">
-    <span>Preço sugerido</span>
+    <span id="barra-preco-rotulo">Preço sugerido</span>
     <strong id="barra-preco-valor">—</strong>
   </button>
 

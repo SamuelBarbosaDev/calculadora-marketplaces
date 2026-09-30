@@ -24,6 +24,7 @@ for k,pl in MAP.items():
       'taxaMedia':round(g[T].sum()/g.P.sum(),4),'freteMediano':round(float(g.FRETE.median()),2),
       'freteSobreVenda':round(g.FRETE.sum()/g.P.sum(),4),
       'margemMedia':round(float(df[df.PLATAFORMA==pl]['LUCRO R$'].sum()/df[df.PLATAFORMA==pl].P.sum()),4),
+      'lucroSobreCusto':round(float(df[df.PLATAFORMA==pl]['LUCRO R$'].sum()/(df[df.PLATAFORMA==pl]['PREÇO CUSTO']*df[df.PLATAFORMA==pl]['QTD VENDIDA'].fillna(1)).sum()),4),
       'ticketMediano':round(float(g.P.median()),2),'faixas':bands}
     print(k, out[k]['taxaMedia'])
 meta={'periodo':df.DATA.min().strftime('%d/%m/%Y')+' a '+df.DATA.max().strftime('%d/%m/%Y'),'linhas':int(len(df))}

@@ -4,7 +4,7 @@
 // Cada faixa: { min, max, pct, fixo }  → tarifa = pct * preço + fixo, para min <= preço < max
 // "freteFixo" (opcional) substitui o frete informado pelo usuário naquela faixa.
 
-window.IMPOSTO = 0.05; // 5% sobre o valor final de venda, em todos os marketplaces
+window.IMPOSTO = 0.05; // padrão de 5% sobre o valor final de venda (editável nos ajustes avançados)
 
 window.ML_CATEGORIAS = [
   { id: "10", pct: 0.10, nome: "10% — Livros, revistas e comics" },
@@ -66,9 +66,9 @@ window.REGRAS = {
   temu: {
     nome: "Temu",
     nota:
-      "Marketplace local: comissão de 16% após a isenção dos primeiros 30 dias. " +
-      "No seu histórico (modelo de preço de fornecimento) a retenção efetiva foi de 19,4%.",
-    comissaoPadrao: 0.16,
-    faixas: null,
+      "Na Temu quem define o preço ao consumidor é a plataforma. Você informa o valor a receber " +
+      "(preço de fornecimento): custo + lucro sobre o custo + imposto. O frete é pago pelo cliente.",
+    // Sem comissão nem frete: valor a receber = custo × (1 + margem) × (1 + imposto)
+    valorAReceber: true,
   },
 };
