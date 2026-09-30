@@ -16,7 +16,8 @@ Para testar localmente, basta abrir o `index.html` no navegador.
 |---|---|
 | `index.html` | Interface |
 | `css/style.css` | Estilos mobile-first com os tokens visuais da Led.Tools (laranja `#f38002`, superfícies claras, sombras suaves) |
-| `img/logo.webp` | Logo do cabeçalho e ícone da aba |
+| `img/logo.webp` | Logo do cabeçalho |
+| `img/favicon.ico` | Ícone da aba (16, 32 e 48 px) |
 | `js/regras.js` | **Tabelas oficiais de tarifas.** Edite aqui quando uma plataforma mudar a política |
 | `js/historico.js` | Taxas reais gerada a partir da planilha de vendas (só dados agregados) |
 | `js/calculadora.js` | Lógica de cálculo e interface |
