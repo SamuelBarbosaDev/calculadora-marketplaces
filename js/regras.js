@@ -3,6 +3,7 @@
 //
 // Cada faixa: { min, max, pct, fixo }  → tarifa = pct * preço + fixo, para min <= preço < max
 // "freteFixo" (opcional) substitui o frete informado pelo usuário naquela faixa.
+// "fretePeloCliente: true" indica que o cliente paga o frete: o campo é bloqueado e o frete vale R$ 0.
 
 window.IMPOSTO = 0.05; // padrão de 5% sobre o valor final de venda (editável nos ajustes avançados)
 
@@ -29,8 +30,9 @@ window.REGRAS = {
   shopee: {
     nome: "Shopee",
     nota:
-      "Tabela CNPJ desde 01/03/2026 (comissão + taxa de transação + frete grátis inclusos). " +
+      "Tabela CNPJ desde 01/03/2026 (comissão + taxa de transação inclusas). O frete é pago pelo cliente. " +
       "Sem teto por item. Vendedor CPF com mais de 450 pedidos/90 dias paga +R$ 3,00 por item.",
+    fretePeloCliente: true,
     faixas: [
       { min: 0, max: 8, pct: 0.5, fixo: 0 },
       { min: 8, max: 80, pct: 0.2, fixo: 4 },
@@ -43,7 +45,9 @@ window.REGRAS = {
     nome: "TikTok Shop",
     nota:
       "Desde 15/07/2026: abaixo de R$ 50 → 10% comissão + R$ 4; a partir de R$ 50 → 6% + R$ 6. " +
-      "Soma-se 6% do Programa de Frete Grátis. Comissão de afiliados é à parte (use “Outros custos %”).",
+      "Soma-se a taxa de 6% do Programa de Frete Grátis. O frete em si é pago pelo cliente. " +
+      "Comissão de afiliados é à parte (use “Outros custos %”).",
+    fretePeloCliente: true,
     faixas: [
       { min: 0, max: 50, pct: 0.16, fixo: 4 },
       { min: 50, max: Infinity, pct: 0.12, fixo: 6 },
@@ -70,5 +74,6 @@ window.REGRAS = {
       "(preço de fornecimento): custo + lucro sobre o custo + imposto. O frete é pago pelo cliente.",
     // Sem comissão nem frete: valor a receber = custo × (1 + margem) × (1 + imposto)
     valorAReceber: true,
+    fretePeloCliente: true,
   },
 };

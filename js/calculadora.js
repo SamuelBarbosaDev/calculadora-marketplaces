@@ -4,8 +4,8 @@
   const REGRAS = window.REGRAS;
   const HIST = window.HISTORICO.plataformas;
   const MARKETPLACES = ["mercadolivre", "shopee", "amazon", "tiktok", "temu"];
-  const FRETE_INCLUSO = ["shopee", "tiktok"];
   const eValorAReceber = (mp) => Boolean(REGRAS[mp].valorAReceber);
+  const freteDoCliente = (mp) => Boolean(REGRAS[mp].fretePeloCliente);
 
   const $ = (id) => document.getElementById(id);
   const radio = (name) => document.querySelector(`input[name="${name}"]:checked`).value;
@@ -110,6 +110,7 @@
   // Se o P encontrado cair abaixo do início da faixa, o início da faixa já entrega margem ≥ alvo.
   function resolver(mp, modo, e, freteInformado) {
     if (eValorAReceber(mp)) return resolverValorAReceber(e);
+    if (freteDoCliente(mp)) freteInformado = 0;
     const faixas = montarFaixas(mp, modo, e);
     let melhor = null;
     for (const f of faixas) {
@@ -222,7 +223,7 @@
     $("detalhe").innerHTML = [
       item("Custo do produto", brl.format(e.custo)),
       e.extra ? item("Custo extra por unidade", brl.format(e.extra)) : "",
-      item("Frete", brl.format(r.frete), r.faixa.freteFixo != null ? "tarifa DBA fixa" : ""),
+      item("Frete", brl.format(r.frete), freteDoCliente(e.mp) ? "pago pelo cliente" : r.faixa.freteFixo != null ? "tarifa DBA fixa" : ""),
       item("Tarifa do marketplace", brl.format(tarifa), tarifaSub),
       item("Imposto", brl.format(r.imposto), pct(e.imposto)),
       r.outros ? item("Outros custos", brl.format(r.outros), pct(e.outros)) : "",
@@ -260,7 +261,7 @@
       $("preco-arred").textContent = "Preço de fornecimento. O preço ao consumidor é definido pela Temu.";
       $("outro-modo").textContent = "";
     } else {
-      const a = arredondar(r, e, e.frete);
+      const a = arredondar(r, e, r.frete);
       $("preco-arred").innerHTML = a && Math.abs(a.preco - r.preco) >= 0.005
         ? `Preço comercial <strong>${brl.format(a.preco)}</strong> · lucro ${brl.format(a.lucro)} (${pct(a.margem)})`
         : "";
@@ -278,8 +279,7 @@
     const lista = $("comparativo");
     if (!e) { lista.innerHTML = `<li class="dica">Informe o custo para comparar.</li>`; return; }
     const linhas = MARKETPLACES.map((mp) => {
-      const frete = mp === e.mp ? e.frete : FRETE_INCLUSO.includes(mp) ? 0 : e.frete;
-      const r = resolver(mp, e.modo, e, frete);
+      const r = resolver(mp, e.modo, e, e.frete);
       return { mp, r: r.erro ? null : r };
     });
     // O valor a receber da Temu não é preço ao consumidor, então fica fora da disputa de "menor preço"
@@ -298,7 +298,7 @@
           const selo = r.preco === menor ? `<span class="selo">menor preço</span>` : "";
           corpo = `<span class="cmp-nome">${nome}${selo}</span>
              <span class="cmp-preco">${brl.format(r.preco)}</span>
-             <span class="cmp-sub">Taxas ${brl.format(r.tarifaPct + r.fixo)} · Frete ${brl.format(r.frete)} · Lucro ${brl.format(r.lucro)}</span>`;
+             <span class="cmp-sub">Taxas ${brl.format(r.tarifaPct + r.fixo)} · ${freteDoCliente(mp) ? "Frete pago pelo cliente" : `Frete ${brl.format(r.frete)}`} · Lucro ${brl.format(r.lucro)}</span>`;
         }
         return `<li class="${mp === e.mp ? "atual" : ""}"><button type="button" data-mp="${mp}" aria-label="Selecionar ${nome}">${corpo}</button></li>`;
       })
@@ -351,21 +351,19 @@
       $("comissao").value = (comissaoDigitada[mp] * 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
     }
 
-    // Temu: o cliente paga o frete, então o campo fica bloqueado (o valor digitado é mantido para os outros)
-    $("frete").disabled = aReceber;
+    // Quando o cliente paga o frete o campo fica bloqueado (o valor digitado é mantido para os outros)
+    $("frete").disabled = freteDoCliente(mp);
     $("margem-base").textContent = aReceber ? "sobre o custo" : "sobre a venda";
     $("imposto-base").textContent = aReceber ? "sobre custo + lucro" : "sobre a venda";
     $("res-rotulo").textContent = aReceber ? "Valor a receber" : "Preço de venda sugerido";
     $("barra-preco-rotulo").textContent = aReceber ? "Valor a receber" : "Preço sugerido";
 
     const h = HIST[mp];
-    trocarTexto($("frete-dica"), aReceber
-      ? "Na Temu o frete é pago pelo cliente e não entra no cálculo."
-      : FRETE_INCLUSO.includes(mp)
-        ? `Normalmente R$ 0: o frete grátis já está embutido na tarifa.`
-        : mp === "mercadolivre"
-          ? `Abaixo de R$ 79, informe o custo operacional (histórico: ${brl.format(h.faixas[0].freteMediano)}). Acima, o frete grátis pago (mediana ${brl.format(h.freteMediano)}).`
-          : `Acima de R$ 79 (mediana do histórico: ${brl.format(h.freteMediano)}). Abaixo, a tarifa DBA fixa é aplicada automaticamente.`);
+    trocarTexto($("frete-dica"), freteDoCliente(mp)
+      ? `Na ${REGRAS[mp].nome} o frete é pago pelo cliente e não entra no cálculo.`
+      : mp === "mercadolivre"
+        ? `Abaixo de R$ 79, informe o custo operacional (histórico: ${brl.format(h.faixas[0].freteMediano)}). Acima, o frete grátis pago (mediana ${brl.format(h.freteMediano)}).`
+        : `Acima de R$ 79 (mediana do histórico: ${brl.format(h.freteMediano)}). Abaixo, a tarifa DBA fixa é aplicada automaticamente.`);
 
     $("modo-dica").textContent = aReceber
       ? "Na Temu não há comissão para o vendedor, então a base das taxas não altera o valor a receber."

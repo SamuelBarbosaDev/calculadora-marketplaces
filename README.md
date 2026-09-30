@@ -46,15 +46,19 @@ Valor a receber = (Custo + Custo extra) × (1 + Margem%) × (1 + Imposto%) × (1
 Ex.: R$ 300 × 1,15 × 1,05 = R$ 362,25   (lucro R$ 45,00 · imposto R$ 17,25)
 ```
 
-Aqui a margem é **sobre o custo**, e não sobre a venda. O campo de frete fica bloqueado.
+Aqui a margem é **sobre o custo**, e não sobre a venda.
+
+### Frete pago pelo cliente
+
+Na **Shopee**, no **TikTok Shop** e na **Temu** o frete é pago pelo cliente: o campo de frete fica bloqueado e entra como R$ 0 no cálculo (o histórico confirma frete zero nessas contas). Para mudar isso, edite `fretePeloCliente` em `js/regras.js`.
 
 ### Regras oficiais (set/2026)
 
 | Marketplace | Regra aplicada |
 |---|---|
 | **Mercado Livre** | Comissão por categoria: Clássico 10–14%, Premium +5 p.p. (há um sub-seletor). Desde mar/2026 acabou a tarifa fixa abaixo de R$ 79; no lugar dela entrou um custo operacional por peso, que você informa no campo Frete. |
-| **Shopee** (CNPJ, desde 01/03/2026) | < R$ 8: 50% · R$ 8–79,99: 20% + R$ 4 · R$ 80–99,99: 14% + R$ 16 · R$ 100–199,99: 14% + R$ 20 · ≥ R$ 200: 14% + R$ 26. Sem teto. |
-| **TikTok Shop** (desde 15/07/2026) | < R$ 50: 10% + R$ 4 · ≥ R$ 50: 6% + R$ 6. Soma-se 6% do Programa de Frete Grátis. |
+| **Shopee** (CNPJ, desde 01/03/2026) | < R$ 8: 50% · R$ 8–79,99: 20% + R$ 4 · R$ 80–99,99: 14% + R$ 16 · R$ 100–199,99: 14% + R$ 20 · ≥ R$ 200: 14% + R$ 26. Sem teto. Frete pago pelo cliente. |
+| **TikTok Shop** (desde 15/07/2026) | < R$ 50: 10% + R$ 4 · ≥ R$ 50: 6% + R$ 6. Soma-se a taxa de 6% do Programa de Frete Grátis. O frete em si é pago pelo cliente. |
 | **Amazon** | Comissão da categoria (padrão 13,5%, a mais comum no histórico, e editável). No DBA, abaixo de R$ 79 o envio é fixo: R$ 4,50 (< R$ 30), R$ 6,50 (R$ 30–49,99) e R$ 6,75 (R$ 50–78,99). |
 | **Temu** | Sem comissão para o vendedor e frete pago pelo cliente. Mostra o valor a receber (ver acima). |
 
