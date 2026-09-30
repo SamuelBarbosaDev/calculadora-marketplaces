@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculadora de Preços</title>
+  <meta name="description" content="Calcule o preço de venda ideal para Shopee, Amazon, Mercado Livre, Temu e TikTok Shop, com comissões, frete, 5% de imposto e margem de lucro.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topo">
+    <div class="wrap">
+      <h1>Calculadora de Preços</h1>
+      <p class="sub">Preço de venda sugerido por marketplace, já com comissão, frete, 5% de imposto e a margem desejada.</p>
+    </div>
+  </header>
+
+  <main class="wrap grid">
+    <form id="form" class="card" autocomplete="off" novalidate>
+      <h2>Dados do produto</h2>
+
+      <label class="campo">
+        <span>Marketplace</span>
+        <select id="marketplace">
+          <option value="shopee">Shopee</option>
+          <option value="amazon">Amazon</option>
+          <option value="mercadolivre" selected>Mercado Livre</option>
+          <option value="temu">Temu</option>
+          <option value="tiktok">TikTok Shop</option>
+        </select>
+      </label>
+
+      <fieldset id="bloco-ml" class="sub-bloco">
+        <legend>Mercado Livre</legend>
+        <label class="campo">
+          <span>Categoria / faixa de comissão</span>
+          <select id="ml-categoria"></select>
+        </label>
+        <label class="campo" id="ml-custom-wrap" hidden>
+          <span>Comissão da categoria (%)</span>
+          <input id="ml-custom" type="text" inputmode="decimal" placeholder="Ex.: 11,5">
+        </label>
+        <div class="segmented" role="radiogroup" aria-label="Tipo de anúncio">
+          <label><input type="radio" name="ml-tipo" value="classico" checked><span>Clássico</span></label>
+          <label><input type="radio" name="ml-tipo" value="premium"><span>Premium (+5 p.p.)</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset id="bloco-comissao" class="sub-bloco" hidden>
+        <legend id="comissao-legenda">Comissão</legend>
+        <label class="campo">
+          <span>Comissão da categoria (%)</span>
+          <input id="comissao" type="text" inputmode="decimal">
+        </label>
+      </fieldset>
+
+      <label class="campo">
+        <span>Custo do produto (R$)</span>
+        <input id="custo" type="text" inputmode="decimal" placeholder="0,00" required>
+      </label>
+
+      <label class="campo">
+        <span>Valor médio do frete (R$)</span>
+        <input id="frete" type="text" inputmode="decimal" placeholder="0,00">
+        <small id="frete-dica" class="dica"></small>
+      </label>
+
+      <label class="campo">
+        <span>Margem de lucro desejada (% sobre a venda)</span>
+        <input id="margem" type="text" inputmode="decimal" placeholder="Ex.: 15" value="15">
+      </label>
+
+      <details class="avancado">
+        <summary>Ajustes avançados</summary>
+        <label class="campo">
+          <span>Outros custos (% sobre a venda) — ads, afiliados, devoluções</span>
+          <input id="outros" type="text" inputmode="decimal" placeholder="0">
+        </label>
+        <label class="campo">
+          <span>Custo extra por unidade (R$) — embalagem, etiqueta</span>
+          <input id="extra" type="text" inputmode="decimal" placeholder="0,00">
+        </label>
+      </details>
+
+      <div class="campo">
+        <span>Base das taxas</span>
+        <div class="segmented" role="radiogroup" aria-label="Base das taxas">
+          <label><input type="radio" name="modo" value="oficial" checked><span>Tabela oficial 2026</span></label>
+          <label><input type="radio" name="modo" value="historico"><span>Seu histórico real</span></label>
+        </div>
+        <small id="modo-dica" class="dica"></small>
+      </div>
+
+      <p id="nota" class="nota"></p>
+    </form>
+
+    <section class="coluna-resultado">
+      <div class="card resultado" aria-live="polite">
+        <p class="rotulo">Valor final de venda sugerido</p>
+        <p id="preco" class="preco">—</p>
+        <p id="preco-arred" class="arred"></p>
+        <p id="erro" class="erro" hidden></p>
+
+        <table class="detalhe" id="detalhe">
+          <tbody></tbody>
+        </table>
+        <p id="outro-modo" class="dica"></p>
+      </div>
+
+      <div class="card">
+        <h2>Comparativo entre marketplaces</h2>
+        <div class="tabela-scroll">
+          <table class="comparativo" id="comparativo">
+            <thead>
+              <tr><th>Marketplace</th><th>Preço</th><th>Taxas</th><th>Frete</th><th>Lucro</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="dica">Mesmo custo e margem. Shopee, TikTok Shop e Temu consideram frete R$ 0 (já coberto pelo programa de frete grátis), exceto quando é o marketplace selecionado.</p>
+      </div>
+
+      <div class="card">
+        <h2>Seu histórico nesta plataforma</h2>
+        <dl id="historico" class="kpis"></dl>
+        <p id="historico-meta" class="dica"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap rodape">
+    <p>Valores de referência. Confirme sempre a tarifa exata no painel do vendedor de cada plataforma (categoria, reputação e campanhas alteram a cobrança).</p>
+  </footer>
+
+  <script src="js/regras.js"></script>
+  <script src="js/historico.js"></script>
+  <script src="js/calculadora.js"></script>
+</body>
+</html>
