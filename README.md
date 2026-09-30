@@ -18,10 +18,12 @@ Para testar localmente, basta abrir o `index.html` no navegador.
 | `css/style.css` | Estilos mobile-first com os tokens visuais da Led.Tools (laranja `#f38002`, superfícies claras, sombras suaves) |
 | `img/logo.webp` | Logo do cabeçalho |
 | `img/favicon.ico` | Ícone da aba (16, 32 e 48 px) |
-| `js/regras.js` | **Tabelas oficiais de tarifas.** Edite aqui quando uma plataforma mudar a política |
+| `js/regras.js` | **Tabelas oficiais de tarifas** e categorias do ML conferidas no simulador. Edite aqui quando uma plataforma mudar a política |
+| `js/ml_categorias.js` | 423 subcategorias do Mercado Livre com Clássico e Premium (gerado por script) |
 | `js/historico.js` | Taxas reais gerada a partir da planilha de vendas (só dados agregados) |
 | `js/calculadora.js` | Lógica de cálculo e interface |
 | `scripts/gerar_historico.py` | Recalcula `historico.js` a partir de uma planilha nova |
+| `scripts/atualizar_categorias_ml.py` | Atualiza `ml_categorias.js` com as comissões por subcategoria |
 
 ## Como o preço é calculado
 
@@ -56,11 +58,31 @@ Na **Shopee**, no **TikTok Shop** e na **Temu** o frete é pago pelo cliente: o 
 
 | Marketplace | Regra aplicada |
 |---|---|
-| **Mercado Livre** | Comissão por categoria: Clássico 10–14%, Premium +5 p.p. (há um sub-seletor). Desde mar/2026 acabou a tarifa fixa abaixo de R$ 79; no lugar dela entrou um custo operacional por peso, que você informa no campo Frete. |
+| **Mercado Livre** | Comissão da subcategoria, escolhida numa busca (ver abaixo). Desde mar/2026 acabou a tarifa fixa abaixo de R$ 79; no lugar dela entrou um custo operacional por peso, que você informa no campo Frete. Acima de R$ 79, informe o frete grátis já com o desconto de reputação. |
 | **Shopee** (CNPJ, desde 01/03/2026) | < R$ 8: 50% · R$ 8–79,99: 20% + R$ 4 · R$ 80–99,99: 14% + R$ 16 · R$ 100–199,99: 14% + R$ 20 · ≥ R$ 200: 14% + R$ 26. Sem teto. Frete pago pelo cliente. |
 | **TikTok Shop** (desde 15/07/2026) | < R$ 50: 10% + R$ 4 · ≥ R$ 50: 6% + R$ 6. Soma-se a taxa de 6% do Programa de Frete Grátis. O frete em si é pago pelo cliente. |
 | **Amazon** | Comissão da categoria (padrão 13,5%, a mais comum no histórico, e editável). No DBA, abaixo de R$ 79 o envio é fixo: R$ 4,50 (< R$ 30), R$ 6,50 (R$ 30–49,99) e R$ 6,75 (R$ 50–78,99). |
 | **Temu** | Sem comissão para o vendedor e frete pago pelo cliente. Mostra o valor a receber (ver acima). |
+
+### Categorias do Mercado Livre
+
+A comissão do ML depende da **subcategoria** e do **tipo de anúncio**. A calculadora tem uma busca com 423 subcategorias (Clássico e Premium de cada uma). A fonte são as páginas públicas por categoria da [Marketize Sales](https://www.marketizesales.com.br/comissoes/mercado-livre), atualizadas em abr/2026. A API oficial do ML (`/sites/MLB/listing_prices`) exige autenticação.
+
+**O Premium não é sempre Clássico + 5 p.p.** No Simulador de custos do ML (set/2026), uma cadeira gamer em *Casa, Móveis e Decoração › Móveis para Casa › Cadeiras, Sofás e Banquetas › Cadeiras para Escritório* cobra **11% no Clássico e 14% no Premium** ("10x sem acréscimo"). As vendas de setembro na planilha confirmam esses valores. Por isso:
+
+- os dois percentuais aparecem em campos editáveis logo abaixo da busca;
+- as categorias conferidas no simulador ficam em `ML_CATEGORIAS_VERIFICADAS` (`js/regras.js`), aparecem primeiro na busca com o selo "verificada" e têm prioridade sobre a tabela geral.
+
+Para adicionar uma categoria verificada, rode o simulador no Central de vendedores e copie os dois percentuais para essa lista.
+
+A calculadora reproduz o simulador do ML ao centavo. Com preço de R$ 473,10 e frete Full de R$ 106,85 (R$ 213,70 com 50% de desconto por reputação):
+
+| | Tarifa | Custos ML | "Você recebe" (ML) | − 5% imposto − custo R$ 300 |
+|---|---|---|---|---|
+| Premium 14% | R$ 66,23 | R$ 173,08 | R$ 300,02 | **prejuízo de R$ 23,64** |
+| Clássico 11% | R$ 52,04 | R$ 158,89 | R$ 314,21 | **prejuízo de R$ 9,45** |
+
+O "você recebe" do ML não desconta imposto nem o custo do produto. Para 15% de margem sobre a venda, o preço sugerido é **R$ 616,44** (Premium) ou **R$ 589,64** (Clássico).
 
 ### Modo "Seu histórico real"
 

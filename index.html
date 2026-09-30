@@ -36,23 +36,34 @@
         <div class="expand" id="bloco-ml">
           <div class="expand-in">
             <div class="painel">
-              <label class="campo">
-                <span class="campo-rotulo">Categoria do produto</span>
-                <div class="select-wrap"><select id="ml-categoria"></select></div>
-              </label>
-              <div class="expand" id="ml-custom-wrap">
-                <div class="expand-in">
-                  <label class="campo">
-                    <span class="campo-rotulo">Comissão da categoria</span>
-                    <div class="input-wrap sufixo" data-sufixo="%"><input id="ml-custom" type="text" inputmode="decimal" placeholder="11,5"></div>
-                  </label>
-                </div>
-              </div>
               <div class="campo">
+                <label class="campo-rotulo" for="ml-busca">Categoria do produto</label>
+                <div class="busca-wrap">
+                  <svg class="busca-icone" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="7" cy="7" r="4.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.6 10.6L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                  <input id="ml-busca" type="text" role="combobox" aria-expanded="false" aria-controls="ml-lista" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Buscar: cadeira, martelete, panela…">
+                  <button type="button" class="busca-limpar" id="ml-busca-limpar" aria-label="Limpar busca" hidden>×</button>
+                </div>
+                <ul class="busca-lista" id="ml-lista" role="listbox" aria-label="Categorias do Mercado Livre" hidden></ul>
+                <p class="categoria-sel" id="ml-categoria-sel"></p>
+              </div>
+
+              <div class="campos-grid">
+                <label class="campo">
+                  <span class="campo-rotulo">Clássico</span>
+                  <div class="input-wrap sufixo" data-sufixo="%"><input id="ml-pct-classico" type="text" inputmode="decimal"></div>
+                </label>
+                <label class="campo">
+                  <span class="campo-rotulo">Premium</span>
+                  <div class="input-wrap sufixo" data-sufixo="%"><input id="ml-pct-premium" type="text" inputmode="decimal"></div>
+                </label>
+              </div>
+              <p class="dica" id="ml-pct-dica"></p>
+
+              <div class="campo campo-tipo">
                 <span class="campo-rotulo">Tipo de anúncio</span>
                 <div class="segmented" role="radiogroup" aria-label="Tipo de anúncio">
-                  <label><input type="radio" name="ml-tipo" value="classico" checked><span>Clássico</span></label>
-                  <label><input type="radio" name="ml-tipo" value="premium"><span>Premium <small>+5 p.p.</small></span></label>
+                  <label><input type="radio" name="ml-tipo" value="classico" checked><span>Clássico <small id="ml-tipo-c"></small></span></label>
+                  <label><input type="radio" name="ml-tipo" value="premium"><span>Premium <small id="ml-tipo-p"></small></span></label>
                 </div>
               </div>
             </div>
@@ -181,6 +192,7 @@
   </button>
 
   <script src="js/regras.js"></script>
+  <script src="js/ml_categorias.js"></script>
   <script src="js/historico.js"></script>
   <script src="js/calculadora.js"></script>
 </body>

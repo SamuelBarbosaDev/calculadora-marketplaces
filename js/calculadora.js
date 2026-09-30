@@ -37,9 +37,7 @@
   const tarifaManual = {};
 
   function lerEntrada() {
-    const mlCat = window.ML_CATEGORIAS.find((c) => c.id === $("ml-categoria").value);
-    let mlPct = mlCat.pct ?? num($("ml-custom")) / 100;
-    if (radio("ml-tipo") === "premium") mlPct += window.ML_PREMIUM_ADICIONAL;
+    const mlPct = num($(radio("ml-tipo") === "premium" ? "ml-pct-premium" : "ml-pct-classico")) / 100;
     return {
       mp: radio("marketplace"),
       modo: radio("modo"),
@@ -402,7 +400,6 @@
     const aReceber = eValorAReceber(mp);
 
     alternar($("bloco-ml"), mp === "mercadolivre" && oficial);
-    alternar($("ml-custom-wrap"), $("ml-categoria").value === "custom");
 
     alternar($("bloco-comissao"), mp === "amazon" && oficial);
     if (mp === "amazon") {
@@ -436,10 +433,151 @@
     calcular();
   }
 
+  // ---------- Categorias do Mercado Livre (busca) ----------
+
+  const semAcento = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const fmtPct = (v) => v.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + "%";
+  const escapar = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+  // Verificadas primeiro; elas substituem a entrada da tabela geral com o mesmo nome ou ID
+  const verificadas = window.ML_CATEGORIAS_VERIFICADAS.map((c) => ({ ...c, verificada: true }));
+  const CATEGORIAS = [
+    ...verificadas,
+    ...window.ML_CATEGORIAS.filter((c) => !verificadas.some((v) => v.nome === c.nome || (v.id && v.id === c.id))),
+  ].map((c) => ({ ...c, busca: semAcento(`${c.nome} ${c.caminho || ""} ${c.id || ""}`) }));
+
+  let categoriaAtual = null;
+  let resultados = [];
+  let ativo = -1;
+
+  function filtrar(q) {
+    const termos = semAcento(q).trim().split(/\s+/).filter(Boolean);
+    if (!termos.length) return CATEGORIAS.filter((c) => c.verificada);
+    return CATEGORIAS
+      .filter((c) => termos.every((t) => c.busca.includes(t)))
+      .map((c) => ({ c, peso: (c.verificada ? 0 : 2) + (semAcento(c.nome).startsWith(termos[0]) ? 0 : 1) }))
+      .sort((a, b) => a.peso - b.peso || a.c.nome.localeCompare(b.c.nome, "pt-BR"))
+      .slice(0, 40)
+      .map((x) => x.c);
+  }
+
+  function destacar(nome, q) {
+    const termos = semAcento(q).trim().split(/\s+/).filter(Boolean);
+    const base = semAcento(nome);
+    const marcas = new Array(nome.length).fill(false);
+    for (const t of termos) {
+      let i = base.indexOf(t);
+      while (i >= 0) { for (let k = i; k < i + t.length; k++) marcas[k] = true; i = base.indexOf(t, i + t.length); }
+    }
+    let html = "", aberto = false;
+    for (let i = 0; i < nome.length; i++) {
+      if (marcas[i] !== aberto) { html += marcas[i] ? "<mark>" : "</mark>"; aberto = marcas[i]; }
+      html += escapar(nome[i]);
+    }
+    return html + (aberto ? "</mark>" : "");
+  }
+
+  function renderLista() {
+    const q = $("ml-busca").value;
+    const lista = $("ml-lista");
+    resultados = filtrar(q === (categoriaAtual && categoriaAtual.nome) ? "" : q);
+    ativo = resultados.length ? 0 : -1;
+    const itens = resultados.map((c, i) => `
+      <li role="option" id="ml-op-${i}" data-i="${i}" aria-selected="${i === ativo}">
+        <span class="item-nome">${destacar(c.nome, q)}${c.verificada ? '<span class="selo selo-ok">verificada</span>' : ""}
+          ${c.caminho ? `<small>${escapar(c.caminho)}</small>` : ""}</span>
+        <span class="item-taxa">${fmtPct(c.c)} · ${fmtPct(c.p)}</span>
+      </li>`);
+    if (!q.trim()) itens.push(`<li class="vazio" role="presentation">Digite para buscar entre ${CATEGORIAS.length} subcategorias</li>`);
+    else if (!resultados.length) itens.push(`<li class="vazio" role="presentation">Nenhuma categoria encontrada. Digite os percentuais abaixo.</li>`);
+    lista.innerHTML = itens.join("");
+    lista.hidden = false;
+    $("ml-busca").setAttribute("aria-expanded", "true");
+    $("ml-busca").setAttribute("aria-activedescendant", ativo >= 0 ? "ml-op-0" : "");
+  }
+
+  function fecharLista() {
+    $("ml-lista").hidden = true;
+    $("ml-busca").setAttribute("aria-expanded", "false");
+    $("ml-busca").removeAttribute("aria-activedescendant");
+  }
+
+  function moverAtivo(delta) {
+    if (!resultados.length) return;
+    ativo = (ativo + delta + resultados.length) % resultados.length;
+    $("ml-lista").querySelectorAll("li[role=option]").forEach((li, i) => li.setAttribute("aria-selected", String(i === ativo)));
+    const li = $("ml-op-" + ativo);
+    li.scrollIntoView({ block: "nearest" });
+    $("ml-busca").setAttribute("aria-activedescendant", li.id);
+  }
+
+  function escolherCategoria(c) {
+    categoriaAtual = c;
+    $("ml-busca").value = c.nome;
+    $("ml-busca-limpar").hidden = false;
+    $("ml-pct-classico").value = c.c.toLocaleString("pt-BR");
+    $("ml-pct-premium").value = c.p.toLocaleString("pt-BR");
+    fecharLista();
+    descreverCategoria();
+    calcular();
+  }
+
+  function descreverCategoria() {
+    const c = categoriaAtual;
+    const cl = num($("ml-pct-classico")), pr = num($("ml-pct-premium"));
+    const editado = c && (cl !== c.c || pr !== c.p);
+    $("ml-tipo-c").textContent = Number.isFinite(cl) ? fmtPct(cl) : "";
+    $("ml-tipo-p").textContent = Number.isFinite(pr) ? fmtPct(pr) : "";
+    $("ml-categoria-sel").innerHTML = !c
+      ? "Nenhuma categoria selecionada: informe os percentuais."
+      : c.verificada
+        ? `<strong>${escapar(c.nome)}</strong> · conferida no ${escapar(c.fonte)}${editado ? " · <em>editada</em>" : ""}`
+        : `<strong>${escapar(c.nome)}</strong>${c.id ? ` · ${c.id}` : ""}${editado ? " · <em>editada</em>" : ""}`;
+    $("ml-pct-dica").textContent = c && c.verificada && !editado
+      ? "Percentuais confirmados no Simulador de custos do Mercado Livre."
+      : "Tabela de abr/2026. O Premium varia com o parcelamento: confira no Simulador de custos do ML e ajuste se precisar.";
+  }
+
+  function iniciarBuscaCategoria() {
+    const busca = $("ml-busca");
+    busca.addEventListener("focus", () => { busca.select(); renderLista(); });
+    busca.addEventListener("input", () => { $("ml-busca-limpar").hidden = !busca.value; renderLista(); });
+    busca.addEventListener("keydown", (ev) => {
+      if (ev.key === "ArrowDown") { ev.preventDefault(); if ($("ml-lista").hidden) renderLista(); else moverAtivo(1); }
+      else if (ev.key === "ArrowUp") { ev.preventDefault(); moverAtivo(-1); }
+      else if (ev.key === "Enter") { ev.preventDefault(); if (ativo >= 0 && !$("ml-lista").hidden) escolherCategoria(resultados[ativo]); }
+      else if (ev.key === "Escape") { fecharLista(); if (categoriaAtual) busca.value = categoriaAtual.nome; }
+    });
+    busca.addEventListener("blur", () => setTimeout(() => {
+      fecharLista();
+      if (categoriaAtual && busca.value !== categoriaAtual.nome) busca.value = categoriaAtual.nome;
+    }, 120));
+    // mousedown para escolher antes do blur fechar a lista
+    $("ml-lista").addEventListener("mousedown", (ev) => {
+      const li = ev.target.closest("li[data-i]");
+      if (!li) return;
+      ev.preventDefault();
+      escolherCategoria(resultados[Number(li.dataset.i)]);
+    });
+    $("ml-busca-limpar").addEventListener("click", () => {
+      busca.value = "";
+      $("ml-busca-limpar").hidden = true;
+      busca.focus();
+    });
+    ["ml-pct-classico", "ml-pct-premium"].forEach((id) =>
+      $(id).addEventListener("input", () => { descreverCategoria(); calcular(); }));
+
+    const padrao = CATEGORIAS.find((c) => c.nome === window.ML_CATEGORIA_PADRAO) || CATEGORIAS[0];
+    categoriaAtual = padrao;
+    busca.value = padrao.nome;
+    $("ml-busca-limpar").hidden = false;
+    $("ml-pct-classico").value = padrao.c.toLocaleString("pt-BR");
+    $("ml-pct-premium").value = padrao.p.toLocaleString("pt-BR");
+    descreverCategoria();
+  }
+
   function iniciar() {
-    $("ml-categoria").innerHTML = window.ML_CATEGORIAS
-      .map((c) => `<option value="${c.id}"${c.id === "12" ? " selected" : ""}>${c.nome}</option>`)
-      .join("");
+    iniciarBuscaCategoria();
 
     $("comissao").addEventListener("input", () => {
       const mp = radio("marketplace");
@@ -449,9 +587,8 @@
     });
 
     document.querySelectorAll('input[name="marketplace"], input[name="modo"]').forEach((el) => el.addEventListener("change", atualizarInterface));
-    $("ml-categoria").addEventListener("change", atualizarInterface);
     document.querySelectorAll('input[name="ml-tipo"]').forEach((el) => el.addEventListener("change", calcular));
-    ["custo", "frete", "margem", "imposto", "outros", "extra", "ml-custom"].forEach((id) => $(id).addEventListener("input", calcular));
+    ["custo", "frete", "margem", "imposto", "outros", "extra"].forEach((id) => $(id).addEventListener("input", calcular));
     $("form").addEventListener("submit", (ev) => ev.preventDefault());
 
     // Tarifa manual por marketplace

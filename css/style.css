@@ -226,6 +226,50 @@ select { padding-right: 40px; font-size: 0.98rem; text-overflow: ellipsis; curso
 
 .campo-margem { margin-top: 14px; }
 
+/* ---------- Busca de categoria (Mercado Livre) ---------- */
+.busca-wrap { position: relative; }
+.busca-icone { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-2); pointer-events: none; }
+.busca-wrap input { padding-left: 40px; padding-right: 40px; }
+.busca-limpar {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border: 0; border-radius: 50%;
+  background: var(--surface-subtle); color: var(--text-3);
+  font-size: 1.1rem; line-height: 1; cursor: pointer;
+}
+.busca-limpar:hover { background: #e5e5ea; }
+.busca-lista {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 4px;
+  max-height: 264px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-subtle);
+}
+.busca-lista li {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  font-size: 0.94rem;
+  cursor: pointer;
+}
+.busca-lista li[aria-selected="true"], .busca-lista li:hover { background: var(--brand-tint-weak); }
+.busca-lista .item-nome { min-width: 0; }
+.busca-lista .item-nome small { display: block; font-size: 0.75rem; color: var(--text-2); }
+.busca-lista .item-taxa { flex: none; font-size: 0.8rem; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.busca-lista mark { background: none; color: var(--brand-hover); font-weight: 600; }
+.busca-lista .vazio { color: var(--text-2); cursor: default; }
+.busca-lista .vazio:hover { background: none; }
+.selo-ok { background: var(--success-tint); color: var(--success-text); margin-left: 6px; }
+
+.categoria-sel { margin: 8px 0 0; font-size: 0.82rem; color: var(--text-3); min-height: 1.2em; }
+.categoria-sel strong { color: var(--text); font-weight: 600; }
+.campo-tipo { margin-top: 14px; }
+.painel .dica { margin-top: 8px; }
+
 /* ---------- Controle segmentado (estilo iOS) ---------- */
 .segmented {
   display: flex;

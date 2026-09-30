@@ -7,21 +7,28 @@
 
 window.IMPOSTO = 0.05; // padrão de 5% sobre o valor final de venda (editável nos ajustes avançados)
 
-window.ML_CATEGORIAS = [
-  { id: "10", pct: 0.10, nome: "10% — Livros, revistas e comics" },
-  { id: "11", pct: 0.11, nome: "11% — Ferramentas elétricas e alguns itens de construção" },
-  { id: "12", pct: 0.12, nome: "12% — Eletrônicos, informática, celulares, eletrodomésticos, autopeças" },
-  { id: "13", pct: 0.13, nome: "13% — Categorias intermediárias" },
-  { id: "14", pct: 0.14, nome: "14% — Casa, móveis, decoração, iluminação, esportes, beleza, brinquedos" },
-  { id: "custom", pct: null, nome: "Outra (digitar %)" },
+// Categorias do Mercado Livre conferidas no Simulador de custos do ML. Têm prioridade sobre
+// js/ml_categorias.js (tabela geral por subcategoria) e aparecem primeiro na busca.
+// Obs.: o Premium NÃO é sempre Clássico + 5 p.p.; ele varia com a categoria e o parcelamento.
+// Para adicionar: rode o simulador no Central de vendedores e copie os dois percentuais.
+window.ML_CATEGORIAS_VERIFICADAS = [
+  {
+    id: null,
+    nome: "Cadeiras para Escritório (inclui gamer)",
+    caminho: "Casa, Móveis e Decoração › Móveis para Casa › Cadeiras, Sofás e Banquetas",
+    c: 11,
+    p: 14, // Premium "10x sem acréscimo"
+    fonte: "Simulador ML, set/2026 (anúncio MLB6641507926)",
+  },
 ];
-window.ML_PREMIUM_ADICIONAL = 0.05; // Premium = Clássico + 5 p.p. (parcelamento sem juros)
+window.ML_CATEGORIA_PADRAO = "Cadeiras para Escritório (inclui gamer)";
 
 window.REGRAS = {
   mercadolivre: {
     nome: "Mercado Livre",
     nota:
-      "Comissão da categoria (Clássico 10–14%, Premium 15–19%). Desde mar/2026 não há mais tarifa fixa: " +
+      "Comissão da subcategoria (Clássico 10–14%; o Premium varia com a categoria e o parcelamento — " +
+      "confira no Simulador de custos do ML). Desde mar/2026 não há mais tarifa fixa: " +
       "abaixo de R$ 79 cobra-se um custo operacional por peso/medidas — informe-o no campo Frete " +
       "(mediana do histórico: R$ 6,75). Acima de R$ 79 informe o custo do frete grátis que você paga.",
     // As faixas são montadas dinamicamente a partir da categoria escolhida (ver calculadora.js)
