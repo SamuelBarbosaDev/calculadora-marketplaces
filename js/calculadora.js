@@ -22,11 +22,19 @@
     return Number.isFinite(v) ? v : NaN;
   }
 
+  // Campo vazio = null (usa o valor automático); texto inválido = NaN
+  function numOuNulo(el) {
+    return String(el.value).trim() === "" ? null : num(el);
+  }
+
   // ---------- Estado dos inputs ----------
 
   const comissaoDigitada = {
     amazon: REGRAS.amazon.comissaoPadrao,
   };
+
+  // Tarifa ajustada manualmente, por marketplace: { pct (fração) | null, fixo (R$) | null }
+  const tarifaManual = {};
 
   function lerEntrada() {
     const mlCat = window.ML_CATEGORIAS.find((c) => c.id === $("ml-categoria").value);
@@ -43,6 +51,7 @@
       extra: num($("extra")),
       mlPct,
       comissao: { amazon: comissaoDigitada.amazon },
+      tarifaManual,
     };
   }
 
@@ -50,6 +59,9 @@
 
   // Faixas de tarifa: [{min, max, pct, fixo}]
   function faixasTarifa(mp, modo, e) {
+    // Tarifa manual substitui a tabela (nos dois modos): pct% × preço + fixo, sem faixas
+    const manual = e.tarifaManual[mp];
+    if (manual) return [{ min: 0, max: Infinity, pct: manual.pct ?? 0, fixo: manual.fixo ?? 0, manual: true }];
     if (modo === "historico") {
       return HIST[mp].faixas.map((f) => ({
         min: f.min,
@@ -84,7 +96,7 @@
       const min = cortes[i], max = cortes[i + 1];
       const ft = t.find((x) => min >= x.min && min < x.max);
       const ff = f.find((x) => min >= x.min && min < x.max);
-      if (ft && ff) faixas.push({ min, max, pct: ft.pct, fixo: ft.fixo, freteFixo: ff.freteFixo });
+      if (ft && ff) faixas.push({ min, max, pct: ft.pct, fixo: ft.fixo, freteFixo: ff.freteFixo, manual: Boolean(ft.manual) });
     }
     return faixas;
   }
@@ -219,7 +231,8 @@
       return;
     }
     const tarifa = r.tarifaPct + r.fixo;
-    const tarifaSub = r.fixo > 0 ? `${pct(r.faixa.pct)} + ${brl.format(r.fixo)}` : pct(r.faixa.pct);
+    const tarifaSub = (r.fixo > 0 ? `${pct(r.faixa.pct)} + ${brl.format(r.fixo)}` : pct(r.faixa.pct)) +
+      (r.faixa.manual ? " · manual" : "");
     $("detalhe").innerHTML = [
       item("Custo do produto", brl.format(e.custo)),
       e.extra ? item("Custo extra por unidade", brl.format(e.extra)) : "",
@@ -243,7 +256,9 @@
 
   function calcular() {
     const e = lerEntrada();
-    const invalido = [e.custo, e.frete, e.margem, e.imposto, e.outros, e.extra, e.mlPct].some((v) => Number.isNaN(v));
+    const manual = e.tarifaManual[e.mp] || {};
+    const invalido = [e.custo, e.frete, e.margem, e.imposto, e.outros, e.extra, e.mlPct, manual.pct, manual.fixo]
+      .some((v) => Number.isNaN(v));
 
     if (invalido) { limparResultado("Verifique os valores digitados (use apenas números)."); renderComparativo(null); return; }
     if (e.custo <= 0) { limparResultado(""); renderComparativo(null); return; }
@@ -255,6 +270,7 @@
     animarValor($("preco"), r.preco);
     $("barra-preco-valor").textContent = brl.format(r.preco);
     renderDetalhe(r, e);
+    mostrarTarifaAutomatica(r);
 
     if (r.valorAReceber) {
       // O preço ao consumidor é definido pela plataforma: sem arredondamento comercial nem comparação de modos
@@ -267,9 +283,11 @@
         : "";
       const outroModo = e.modo === "oficial" ? "historico" : "oficial";
       const r2 = resolver(e.mp, outroModo, e, e.frete);
-      $("outro-modo").textContent = r2.erro
-        ? ""
-        : `${outroModo === "historico" ? "Pelo nosso histórico de taxas" : "Pela tabela oficial 2026"}: ${brl.format(r2.preco)}`;
+      $("outro-modo").textContent = r.faixa.manual
+        ? "Tarifa ajustada manualmente em Ajustes avançados."
+        : r2.erro
+          ? ""
+          : `${outroModo === "historico" ? "Pelo nosso histórico de taxas" : "Pela tabela oficial 2026"}: ${brl.format(r2.preco)}`;
     }
 
     renderComparativo(e);
@@ -298,11 +316,52 @@
           const selo = r.preco === menor ? `<span class="selo">menor preço</span>` : "";
           corpo = `<span class="cmp-nome">${nome}${selo}</span>
              <span class="cmp-preco">${brl.format(r.preco)}</span>
-             <span class="cmp-sub">Taxas ${brl.format(r.tarifaPct + r.fixo)} · ${freteDoCliente(mp) ? "Frete pago pelo cliente" : `Frete ${brl.format(r.frete)}`} · Lucro ${brl.format(r.lucro)}</span>`;
+             <span class="cmp-sub">Taxas ${brl.format(r.tarifaPct + r.fixo)}${r.faixa.manual ? " (manual)" : ""} · ${freteDoCliente(mp) ? "Frete pago pelo cliente" : `Frete ${brl.format(r.frete)}`} · Lucro ${brl.format(r.lucro)}</span>`;
         }
         return `<li class="${mp === e.mp ? "atual" : ""}"><button type="button" data-mp="${mp}" aria-label="Selecionar ${nome}">${corpo}</button></li>`;
       })
       .join("");
+  }
+
+  // Mostra nos placeholders a tarifa automática aplicada ao preço atual, para servir de referência
+  function mostrarTarifaAutomatica(r) {
+    if (r.faixa.manual || r.valorAReceber) return;
+    $("tarifa-pct").placeholder = (r.faixa.pct * 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+    $("tarifa-fixa").placeholder = r.fixo.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  }
+
+  // Avisos da tarifa manual: selo no botão "Ajustes avançados", link de limpar e dica
+  function avisosTarifa(mp) {
+    const m = tarifaManual[mp];
+    $("tarifa-limpar").hidden = !m;
+    $("selo-manual").hidden = !m;
+    $("tarifa-dica").textContent = eValorAReceber(mp)
+      ? `A ${REGRAS[mp].nome} não cobra tarifa do vendedor.`
+      : m
+        ? `Tarifa manual ativa só para ${REGRAS[mp].nome}: substitui a tabela e o histórico. Campo vazio conta como zero.`
+        : `Em branco usa a tarifa automática (mostrada em cinza para o preço atual). Preencha para substituí-la só na ${REGRAS[mp].nome}.`;
+  }
+
+  // Ao trocar de marketplace, carrega nos campos a tarifa manual dele (se houver)
+  function atualizarTarifaManual(mp) {
+    const m = tarifaManual[mp];
+    const semTarifa = eValorAReceber(mp);
+    $("tarifa-mp").textContent = "· " + REGRAS[mp].nome;
+    $("tarifa-pct").value = m && m.pct != null ? (m.pct * 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 }) : "";
+    $("tarifa-fixa").value = m && m.fixo != null ? m.fixo.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) : "";
+    $("tarifa-pct").disabled = $("tarifa-fixa").disabled = semTarifa;
+    if (semTarifa) $("tarifa-pct").placeholder = $("tarifa-fixa").placeholder = "0";
+    avisosTarifa(mp);
+  }
+
+  function lerTarifaManual() {
+    const mp = radio("marketplace");
+    const p = numOuNulo($("tarifa-pct"));
+    const f = numOuNulo($("tarifa-fixa"));
+    if (p === null && f === null) delete tarifaManual[mp];
+    else tarifaManual[mp] = { pct: p === null ? null : p / 100, fixo: f };
+    avisosTarifa(mp);
+    calcular();
   }
 
   function renderHistorico(mp) {
@@ -372,6 +431,7 @@
         : "Taxa efetiva que pagamos de fato em cada faixa de preço, já incluindo campanhas e subsídios.";
     trocarTexto($("nota"), REGRAS[mp].nota);
 
+    atualizarTarifaManual(mp);
     renderHistorico(mp);
     calcular();
   }
@@ -393,6 +453,14 @@
     document.querySelectorAll('input[name="ml-tipo"]').forEach((el) => el.addEventListener("change", calcular));
     ["custo", "frete", "margem", "imposto", "outros", "extra", "ml-custom"].forEach((id) => $(id).addEventListener("input", calcular));
     $("form").addEventListener("submit", (ev) => ev.preventDefault());
+
+    // Tarifa manual por marketplace
+    ["tarifa-pct", "tarifa-fixa"].forEach((id) => $(id).addEventListener("input", lerTarifaManual));
+    $("tarifa-limpar").addEventListener("click", () => {
+      delete tarifaManual[radio("marketplace")];
+      atualizarTarifaManual(radio("marketplace"));
+      calcular();
+    });
 
     // Ajustes avançados
     alternar($("bloco-avancado"), false);

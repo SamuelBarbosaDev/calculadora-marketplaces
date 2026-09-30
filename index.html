@@ -94,6 +94,7 @@
 
         <button type="button" class="link-avancado" id="btn-avancado" aria-expanded="false" aria-controls="bloco-avancado">
           <span>Ajustes avançados</span>
+          <span class="selo selo-neutro" id="selo-manual" hidden>tarifa manual</span>
           <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <div class="expand" id="bloco-avancado">
@@ -111,6 +112,22 @@
                 <span class="campo-rotulo">Custo extra/unid. <small>embalagem</small></span>
                 <div class="input-wrap prefixo" data-prefixo="R$"><input id="extra" type="text" inputmode="decimal" placeholder="0,00"></div>
               </label>
+            </div>
+
+            <div class="subgrupo" id="grupo-tarifa">
+              <p class="subgrupo-titulo">Tarifa do marketplace <span id="tarifa-mp" class="titulo-sec"></span></p>
+              <div class="campos-grid">
+                <label class="campo">
+                  <span class="campo-rotulo">Tarifa <small>sobre a venda</small></span>
+                  <div class="input-wrap sufixo" data-sufixo="%"><input id="tarifa-pct" type="text" inputmode="decimal"></div>
+                </label>
+                <label class="campo">
+                  <span class="campo-rotulo">Tarifa fixa <small>por unidade</small></span>
+                  <div class="input-wrap prefixo" data-prefixo="R$"><input id="tarifa-fixa" type="text" inputmode="decimal"></div>
+                </label>
+              </div>
+              <p id="tarifa-dica" class="dica"></p>
+              <button type="button" class="link-mini" id="tarifa-limpar" hidden>Voltar à tarifa automática</button>
             </div>
           </div>
         </div>

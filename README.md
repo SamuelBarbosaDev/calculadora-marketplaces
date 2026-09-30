@@ -90,3 +90,4 @@ python scripts/gerar_historico.py "VENDAS PLATAFORMA.xlsx"
 - As tarifas mudam com frequência e dependem de categoria, reputação e campanhas. Confirme a tarifa exata no painel do vendedor ("custo por venda" do anúncio).
 - A comissão de afiliados do TikTok Shop, os anúncios pagos e as devoluções entram no campo **Outros custos (%)**.
 - Embalagem e etiqueta entram em **Custo extra por unidade (R$)**.
+- Se a tarifa real de um anúncio for diferente da tabela, ajuste em **Ajustes avançados → Tarifa do marketplace** (% e R$ fixo). O ajuste vale só para o marketplace selecionado, substitui a tabela e o histórico, e o placeholder mostra a tarifa automática aplicada ao preço atual. Em branco, volta ao automático.
