@@ -7,21 +7,56 @@
 
 window.IMPOSTO = 0.05; // padrão de 5% sobre o valor final de venda (editável nos ajustes avançados)
 
-// Categorias do Mercado Livre conferidas no Simulador de custos do ML. Têm prioridade sobre
-// js/ml_categorias.js (tabela geral por subcategoria) e aparecem primeiro na busca.
-// Obs.: o Premium NÃO é sempre Clássico + 5 p.p.; ele varia com a categoria e o parcelamento.
-// Para adicionar: rode o simulador no Central de vendedores e copie os dois percentuais.
-window.ML_CATEGORIAS_VERIFICADAS = [
+// Categorias principais da empresa no Mercado Livre: aparecem como atalhos e no topo da busca,
+// com prioridade sobre js/ml_categorias.js (tabela geral por subcategoria, abr/2026).
+// Obs.: o Premium NÃO é sempre Clássico + 5 p.p.; em set/2026 ele ficou em +3 na maioria delas.
+//
+// origem "simulador": conferida no Simulador de custos do ML (Central de vendedores).
+// origem "vendas": taxa cheia (sem campanha) mais frequente nas nossas vendas de set/2026.
+// Para confirmar uma categoria, rode o simulador e troque a origem para "simulador".
+window.ML_CATEGORIAS_PRINCIPAIS = [
   {
-    id: null,
-    nome: "Cadeiras para Escritório (inclui gamer)",
-    caminho: "Casa, Móveis e Decoração › Móveis para Casa › Cadeiras, Sofás e Banquetas",
+    nome: "Ferramentas Elétricas",
+    caminho: "Ferramentas › Ferramentas Elétricas (marteletes, furadeiras, parafusadeiras…)",
+    c: 11,
+    p: 14,
+    origem: "vendas",
+    fonte: "vendas de set/2026: marteletes e kits de furadeira",
+  },
+  {
+    nome: "Ferramentas para Jardim",
+    caminho: "Casa, Móveis e Decoração › Jardim (motosserras, roçadeiras, sopradores…)",
+    c: 11,
+    p: 14,
+    origem: "vendas",
+    fonte: "vendas de set/2026: motosserras, sopradores e 2T",
+  },
+  {
+    nome: "Pneus e Acessórios",
+    caminho: "Acessórios para Veículos › Pneus e Acessórios",
+    c: 13.5,
+    p: 16.5,
+    origem: "vendas",
+    fonte: "vendas de set/2026: pares de pneus",
+  },
+  {
+    nome: "Cadeiras para Escritório",
+    caminho: "Casa, Móveis e Decoração › Móveis para Casa › Cadeiras, Sofás e Banquetas (inclui gamer)",
     c: 11,
     p: 14, // Premium "10x sem acréscimo"
+    origem: "simulador",
     fonte: "Simulador ML, set/2026 (anúncio MLB6641507926)",
   },
+  {
+    nome: "Cozinha",
+    caminho: "Casa, Móveis e Decoração › Cozinha (fritadeiras, air fryers, panelas…)",
+    c: 11,
+    p: 16,
+    origem: "vendas",
+    fonte: "vendas de set/2026: fritadeiras e air fryers",
+  },
 ];
-window.ML_CATEGORIA_PADRAO = "Cadeiras para Escritório (inclui gamer)";
+window.ML_CATEGORIA_PADRAO = "Cadeiras para Escritório";
 
 window.REGRAS = {
   mercadolivre: {

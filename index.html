@@ -37,7 +37,9 @@
           <div class="expand-in">
             <div class="painel">
               <div class="campo">
-                <label class="campo-rotulo" for="ml-busca">Categoria do produto</label>
+                <span class="campo-rotulo" id="ml-atalhos-rotulo">Nossas categorias principais</span>
+                <div class="atalhos" id="ml-atalhos" role="group" aria-labelledby="ml-atalhos-rotulo"></div>
+                <label class="campo-rotulo campo-rotulo-busca" for="ml-busca">Ou busque outra categoria</label>
                 <div class="busca-wrap">
                   <svg class="busca-icone" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="7" cy="7" r="4.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.6 10.6L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                   <input id="ml-busca" type="text" role="combobox" aria-expanded="false" aria-controls="ml-lista" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Buscar: cadeira, martelete, panela…">

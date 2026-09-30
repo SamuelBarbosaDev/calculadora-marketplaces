@@ -263,7 +263,27 @@ select { padding-right: 40px; font-size: 0.98rem; text-overflow: ellipsis; curso
 .busca-lista mark { background: none; color: var(--brand-hover); font-weight: 600; }
 .busca-lista .vazio { color: var(--text-2); cursor: default; }
 .busca-lista .vazio:hover { background: none; }
-.selo-ok { background: var(--success-tint); color: var(--success-text); margin-left: 6px; }
+.selo-ok { background: var(--success-tint); color: var(--success-text); }
+.busca-lista .item-nome .selo { margin-left: 6px; white-space: nowrap; }
+
+.atalhos { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.atalho {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: background var(--t) var(--ease), border-color var(--t) var(--ease), color var(--t) var(--ease);
+}
+.atalho:hover { border-color: var(--brand); }
+.atalho[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 600; }
+.atalho:focus-visible { outline: none; box-shadow: var(--ring); }
+.campo-rotulo-busca { margin-top: 6px; font-weight: 500; color: var(--text-3); font-size: 0.84rem; }
 
 .categoria-sel { margin: 8px 0 0; font-size: 0.82rem; color: var(--text-3); min-height: 1.2em; }
 .categoria-sel strong { color: var(--text); font-weight: 600; }

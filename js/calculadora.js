@@ -439,12 +439,16 @@
   const fmtPct = (v) => v.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + "%";
   const escapar = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
-  // Verificadas primeiro; elas substituem a entrada da tabela geral com o mesmo nome ou ID
-  const verificadas = window.ML_CATEGORIAS_VERIFICADAS.map((c) => ({ ...c, verificada: true }));
+  // Principais primeiro; elas substituem a entrada da tabela geral com o mesmo nome ou ID
+  const principais = window.ML_CATEGORIAS_PRINCIPAIS.map((c) => ({ ...c, principal: true }));
   const CATEGORIAS = [
-    ...verificadas,
-    ...window.ML_CATEGORIAS.filter((c) => !verificadas.some((v) => v.nome === c.nome || (v.id && v.id === c.id))),
+    ...principais,
+    ...window.ML_CATEGORIAS.filter((c) => !principais.some((v) => v.nome === c.nome || (v.id && v.id === c.id))),
   ].map((c) => ({ ...c, busca: semAcento(`${c.nome} ${c.caminho || ""} ${c.id || ""}`) }));
+
+  const seloOrigem = (c) => c.origem === "simulador"
+    ? '<span class="selo selo-ok">simulador</span>'
+    : '<span class="selo selo-neutro">nossas vendas</span>';
 
   let categoriaAtual = null;
   let resultados = [];
@@ -452,10 +456,10 @@
 
   function filtrar(q) {
     const termos = semAcento(q).trim().split(/\s+/).filter(Boolean);
-    if (!termos.length) return CATEGORIAS.filter((c) => c.verificada);
+    if (!termos.length) return CATEGORIAS.filter((c) => c.principal);
     return CATEGORIAS
       .filter((c) => termos.every((t) => c.busca.includes(t)))
-      .map((c) => ({ c, peso: (c.verificada ? 0 : 2) + (semAcento(c.nome).startsWith(termos[0]) ? 0 : 1) }))
+      .map((c) => ({ c, peso: (c.principal ? 0 : 2) + (semAcento(c.nome).startsWith(termos[0]) ? 0 : 1) }))
       .sort((a, b) => a.peso - b.peso || a.c.nome.localeCompare(b.c.nome, "pt-BR"))
       .slice(0, 40)
       .map((x) => x.c);
@@ -478,17 +482,19 @@
   }
 
   function renderLista() {
-    const q = $("ml-busca").value;
+    const digitado = $("ml-busca").value;
+    // com a categoria atual no campo, mostra a lista inicial (principais) em vez de filtrar pelo nome dela
+    const q = digitado === (categoriaAtual && categoriaAtual.nome) ? "" : digitado;
     const lista = $("ml-lista");
-    resultados = filtrar(q === (categoriaAtual && categoriaAtual.nome) ? "" : q);
+    resultados = filtrar(q);
     ativo = resultados.length ? 0 : -1;
     const itens = resultados.map((c, i) => `
       <li role="option" id="ml-op-${i}" data-i="${i}" aria-selected="${i === ativo}">
-        <span class="item-nome">${destacar(c.nome, q)}${c.verificada ? '<span class="selo selo-ok">verificada</span>' : ""}
+        <span class="item-nome">${destacar(c.nome, q)}${c.principal ? seloOrigem(c) : ""}
           ${c.caminho ? `<small>${escapar(c.caminho)}</small>` : ""}</span>
         <span class="item-taxa">${fmtPct(c.c)} · ${fmtPct(c.p)}</span>
       </li>`);
-    if (!q.trim()) itens.push(`<li class="vazio" role="presentation">Digite para buscar entre ${CATEGORIAS.length} subcategorias</li>`);
+    if (!q.trim()) itens.push(`<li class="vazio" role="presentation">Digite para buscar entre as outras ${CATEGORIAS.length - principais.length} subcategorias</li>`);
     else if (!resultados.length) itens.push(`<li class="vazio" role="presentation">Nenhuma categoria encontrada. Digite os percentuais abaixo.</li>`);
     lista.innerHTML = itens.join("");
     lista.hidden = false;
@@ -519,7 +525,20 @@
     $("ml-pct-premium").value = c.p.toLocaleString("pt-BR");
     fecharLista();
     descreverCategoria();
+    marcarAtalho();
     calcular();
+  }
+
+  // Atalhos de um toque para as categorias principais
+  function renderAtalhos() {
+    $("ml-atalhos").innerHTML = principais
+      .map((c, i) => `<button type="button" class="atalho" data-i="${i}" aria-pressed="false">${escapar(c.nome)}</button>`)
+      .join("");
+  }
+
+  function marcarAtalho() {
+    $("ml-atalhos").querySelectorAll(".atalho").forEach((b) =>
+      b.setAttribute("aria-pressed", String(categoriaAtual && categoriaAtual.nome === principais[b.dataset.i].nome)));
   }
 
   function descreverCategoria() {
@@ -530,12 +549,16 @@
     $("ml-tipo-p").textContent = Number.isFinite(pr) ? fmtPct(pr) : "";
     $("ml-categoria-sel").innerHTML = !c
       ? "Nenhuma categoria selecionada: informe os percentuais."
-      : c.verificada
-        ? `<strong>${escapar(c.nome)}</strong> · conferida no ${escapar(c.fonte)}${editado ? " · <em>editada</em>" : ""}`
+      : c.principal
+        ? `<strong>${escapar(c.nome)}</strong> · ${escapar(c.caminho)}${editado ? " · <em>editada</em>" : ""}`
         : `<strong>${escapar(c.nome)}</strong>${c.id ? ` · ${c.id}` : ""}${editado ? " · <em>editada</em>" : ""}`;
-    $("ml-pct-dica").textContent = c && c.verificada && !editado
-      ? "Percentuais confirmados no Simulador de custos do Mercado Livre."
-      : "Tabela de abr/2026. O Premium varia com o parcelamento: confira no Simulador de custos do ML e ajuste se precisar.";
+    $("ml-pct-dica").textContent = editado
+      ? "Percentuais editados manualmente."
+      : c && c.origem === "simulador"
+        ? `Confirmado no ${c.fonte}.`
+        : c && c.principal
+          ? `Taxa das ${c.fonte}. Confirme no Simulador de custos do ML: a subcategoria exata pode mudar o percentual.`
+          : "Tabela de abr/2026. O Premium varia com o parcelamento: confira no Simulador de custos do ML e ajuste se precisar.";
   }
 
   function iniciarBuscaCategoria() {
@@ -566,6 +589,11 @@
     });
     ["ml-pct-classico", "ml-pct-premium"].forEach((id) =>
       $(id).addEventListener("input", () => { descreverCategoria(); calcular(); }));
+    renderAtalhos();
+    $("ml-atalhos").addEventListener("click", (ev) => {
+      const b = ev.target.closest(".atalho");
+      if (b) escolherCategoria(principais[Number(b.dataset.i)]);
+    });
 
     const padrao = CATEGORIAS.find((c) => c.nome === window.ML_CATEGORIA_PADRAO) || CATEGORIAS[0];
     categoriaAtual = padrao;
@@ -574,6 +602,7 @@
     $("ml-pct-classico").value = padrao.c.toLocaleString("pt-BR");
     $("ml-pct-premium").value = padrao.p.toLocaleString("pt-BR");
     descreverCategoria();
+    marcarAtalho();
   }
 
   function iniciar() {

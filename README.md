@@ -68,12 +68,19 @@ Na **Shopee**, no **TikTok Shop** e na **Temu** o frete é pago pelo cliente: o 
 
 A comissão do ML depende da **subcategoria** e do **tipo de anúncio**. A calculadora tem uma busca com 423 subcategorias (Clássico e Premium de cada uma). A fonte são as páginas públicas por categoria da [Marketize Sales](https://www.marketizesales.com.br/comissoes/mercado-livre), atualizadas em abr/2026. A API oficial do ML (`/sites/MLB/listing_prices`) exige autenticação.
 
-**O Premium não é sempre Clássico + 5 p.p.** No Simulador de custos do ML (set/2026), uma cadeira gamer em *Casa, Móveis e Decoração › Móveis para Casa › Cadeiras, Sofás e Banquetas › Cadeiras para Escritório* cobra **11% no Clássico e 14% no Premium** ("10x sem acréscimo"). As vendas de setembro na planilha confirmam esses valores. Por isso:
+**O Premium não é sempre Clássico + 5 p.p.** Em set/2026 ele ficou em +3 na maioria das nossas categorias. Por isso os dois percentuais aparecem em campos editáveis logo abaixo da busca.
 
-- os dois percentuais aparecem em campos editáveis logo abaixo da busca;
-- as categorias conferidas no simulador ficam em `ML_CATEGORIAS_VERIFICADAS` (`js/regras.js`), aparecem primeiro na busca com o selo "verificada" e têm prioridade sobre a tabela geral.
+As **categorias principais** da empresa aparecem como atalhos de um toque e no topo da busca. Elas ficam em `ML_CATEGORIAS_PRINCIPAIS` (`js/regras.js`) e têm prioridade sobre a tabela geral:
 
-Para adicionar uma categoria verificada, rode o simulador no Central de vendedores e copie os dois percentuais para essa lista.
+| Categoria | Clássico | Premium | Origem |
+|---|---|---|---|
+| Ferramentas Elétricas | 11% | 14% | Nossas vendas de set/2026 (marteletes, kits de furadeira) |
+| Ferramentas para Jardim | 11% | 14% | Nossas vendas de set/2026 (motosserras, sopradores, 2T) |
+| Pneus e Acessórios | 13,5% | 16,5% | Nossas vendas de set/2026 (pares de pneus) |
+| Cadeiras para Escritório | 11% | 14% | Simulador do ML, set/2026 (cadeira gamer, "10x sem acréscimo") |
+| Cozinha | 11% | 16% | Nossas vendas de set/2026 (fritadeiras, air fryers) |
+
+"Nossas vendas" é a taxa cheia (sem desconto de campanha) mais frequente nos pedidos de setembro. Subcategorias específicas podem ter outro percentual; esmerilhadeiras, por exemplo, apareceram com 12% / 17%. Para confirmar uma categoria, rode o simulador do ML e troque `origem` para `"simulador"`.
 
 A calculadora reproduz o simulador do ML ao centavo. Com preço de R$ 473,10 e frete Full de R$ 106,85 (R$ 213,70 com 50% de desconto por reputação):
 
