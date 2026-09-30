@@ -2,135 +2,162 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Calculadora de Preços</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Calculadora de Preços · Led.Tools</title>
   <meta name="description" content="Calcule o preço de venda ideal para Shopee, Amazon, Mercado Livre, Temu e TikTok Shop, com comissões, frete, 5% de imposto e margem de lucro.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="img/logo.webp" type="image/webp">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-  <header class="topo">
-    <div class="wrap">
-      <h1>Calculadora de Preços</h1>
-      <p class="sub">Preço de venda sugerido por marketplace, já com comissão, frete, 5% de imposto e a margem desejada.</p>
+<body class="carregando">
+  <header class="barra">
+    <div class="wrap barra-in">
+      <img src="img/logo.webp" alt="Led.Tools" class="logo" width="72" height="40">
+      <div class="barra-titulo">
+        <strong>Calculadora de Preços</strong>
+        <span>Marketplaces</span>
+      </div>
     </div>
   </header>
 
-  <main class="wrap grid">
-    <form id="form" class="card" autocomplete="off" novalidate>
-      <h2>Dados do produto</h2>
+  <main class="wrap layout">
+    <form id="form" class="coluna-form" autocomplete="off" novalidate>
 
-      <label class="campo">
-        <span>Marketplace</span>
-        <select id="marketplace">
-          <option value="shopee">Shopee</option>
-          <option value="amazon">Amazon</option>
-          <option value="mercadolivre" selected>Mercado Livre</option>
-          <option value="temu">Temu</option>
-          <option value="tiktok">TikTok Shop</option>
-        </select>
-      </label>
-
-      <fieldset id="bloco-ml" class="sub-bloco">
-        <legend>Mercado Livre</legend>
-        <label class="campo">
-          <span>Categoria / faixa de comissão</span>
-          <select id="ml-categoria"></select>
-        </label>
-        <label class="campo" id="ml-custom-wrap" hidden>
-          <span>Comissão da categoria (%)</span>
-          <input id="ml-custom" type="text" inputmode="decimal" placeholder="Ex.: 11,5">
-        </label>
-        <div class="segmented" role="radiogroup" aria-label="Tipo de anúncio">
-          <label><input type="radio" name="ml-tipo" value="classico" checked><span>Clássico</span></label>
-          <label><input type="radio" name="ml-tipo" value="premium"><span>Premium (+5 p.p.)</span></label>
+      <section class="card">
+        <h2 class="card-titulo">Marketplace</h2>
+        <div class="chips" role="radiogroup" aria-label="Marketplace">
+          <label class="chip"><input type="radio" name="marketplace" value="mercadolivre" checked><span><i class="dot" style="--dot:#ffe600"></i>Mercado Livre</span></label>
+          <label class="chip"><input type="radio" name="marketplace" value="shopee"><span><i class="dot" style="--dot:#ee4d2d"></i>Shopee</span></label>
+          <label class="chip"><input type="radio" name="marketplace" value="amazon"><span><i class="dot" style="--dot:#232f3e"></i>Amazon</span></label>
+          <label class="chip"><input type="radio" name="marketplace" value="tiktok"><span><i class="dot" style="--dot:#111111"></i>TikTok Shop</span></label>
+          <label class="chip"><input type="radio" name="marketplace" value="temu"><span><i class="dot" style="--dot:#fb7701"></i>Temu</span></label>
         </div>
-      </fieldset>
 
-      <fieldset id="bloco-comissao" class="sub-bloco" hidden>
-        <legend id="comissao-legenda">Comissão</legend>
-        <label class="campo">
-          <span>Comissão da categoria (%)</span>
-          <input id="comissao" type="text" inputmode="decimal">
+        <div class="expand" id="bloco-ml">
+          <div class="expand-in">
+            <div class="painel">
+              <label class="campo">
+                <span class="campo-rotulo">Categoria do produto</span>
+                <div class="select-wrap"><select id="ml-categoria"></select></div>
+              </label>
+              <div class="expand" id="ml-custom-wrap">
+                <div class="expand-in">
+                  <label class="campo">
+                    <span class="campo-rotulo">Comissão da categoria</span>
+                    <div class="input-wrap sufixo" data-sufixo="%"><input id="ml-custom" type="text" inputmode="decimal" placeholder="11,5"></div>
+                  </label>
+                </div>
+              </div>
+              <div class="campo">
+                <span class="campo-rotulo">Tipo de anúncio</span>
+                <div class="segmented" role="radiogroup" aria-label="Tipo de anúncio">
+                  <label><input type="radio" name="ml-tipo" value="classico" checked><span>Clássico</span></label>
+                  <label><input type="radio" name="ml-tipo" value="premium"><span>Premium <small>+5 p.p.</small></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="expand" id="bloco-comissao">
+          <div class="expand-in">
+            <div class="painel">
+              <label class="campo">
+                <span class="campo-rotulo" id="comissao-legenda">Comissão da categoria</span>
+                <div class="input-wrap sufixo" data-sufixo="%"><input id="comissao" type="text" inputmode="decimal"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <p id="nota" class="nota"></p>
+      </section>
+
+      <section class="card">
+        <h2 class="card-titulo">Produto</h2>
+        <div class="campos-grid">
+          <label class="campo">
+            <span class="campo-rotulo">Custo do produto</span>
+            <div class="input-wrap prefixo" data-prefixo="R$"><input id="custo" type="text" inputmode="decimal" placeholder="0,00" required></div>
+          </label>
+          <label class="campo">
+            <span class="campo-rotulo">Frete médio</span>
+            <div class="input-wrap prefixo" data-prefixo="R$"><input id="frete" type="text" inputmode="decimal" placeholder="0,00"></div>
+          </label>
+        </div>
+        <p id="frete-dica" class="dica"></p>
+
+        <label class="campo campo-margem">
+          <span class="campo-rotulo">Margem de lucro desejada <small>sobre a venda</small></span>
+          <div class="input-wrap sufixo" data-sufixo="%"><input id="margem" type="text" inputmode="decimal" placeholder="15" value="15"></div>
         </label>
-      </fieldset>
 
-      <label class="campo">
-        <span>Custo do produto (R$)</span>
-        <input id="custo" type="text" inputmode="decimal" placeholder="0,00" required>
-      </label>
+        <button type="button" class="link-avancado" id="btn-avancado" aria-expanded="false" aria-controls="bloco-avancado">
+          <span>Ajustes avançados</span>
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="expand" id="bloco-avancado">
+          <div class="expand-in">
+            <div class="campos-grid pt">
+              <label class="campo">
+                <span class="campo-rotulo">Outros custos <small>ads, afiliados</small></span>
+                <div class="input-wrap sufixo" data-sufixo="%"><input id="outros" type="text" inputmode="decimal" placeholder="0"></div>
+              </label>
+              <label class="campo">
+                <span class="campo-rotulo">Custo extra/unid. <small>embalagem</small></span>
+                <div class="input-wrap prefixo" data-prefixo="R$"><input id="extra" type="text" inputmode="decimal" placeholder="0,00"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <label class="campo">
-        <span>Valor médio do frete (R$)</span>
-        <input id="frete" type="text" inputmode="decimal" placeholder="0,00">
-        <small id="frete-dica" class="dica"></small>
-      </label>
-
-      <label class="campo">
-        <span>Margem de lucro desejada (% sobre a venda)</span>
-        <input id="margem" type="text" inputmode="decimal" placeholder="Ex.: 15" value="15">
-      </label>
-
-      <details class="avancado">
-        <summary>Ajustes avançados</summary>
-        <label class="campo">
-          <span>Outros custos (% sobre a venda) — ads, afiliados, devoluções</span>
-          <input id="outros" type="text" inputmode="decimal" placeholder="0">
-        </label>
-        <label class="campo">
-          <span>Custo extra por unidade (R$) — embalagem, etiqueta</span>
-          <input id="extra" type="text" inputmode="decimal" placeholder="0,00">
-        </label>
-      </details>
-
-      <div class="campo">
-        <span>Base das taxas</span>
+      <section class="card">
+        <h2 class="card-titulo">Base das taxas</h2>
         <div class="segmented" role="radiogroup" aria-label="Base das taxas">
           <label><input type="radio" name="modo" value="oficial" checked><span>Tabela oficial 2026</span></label>
-          <label><input type="radio" name="modo" value="historico"><span>Seu histórico real</span></label>
+          <label><input type="radio" name="modo" value="historico"><span>Nosso histórico</span></label>
         </div>
-        <small id="modo-dica" class="dica"></small>
-      </div>
-
-      <p id="nota" class="nota"></p>
+        <p id="modo-dica" class="dica"></p>
+      </section>
     </form>
 
-    <section class="coluna-resultado">
-      <div class="card resultado" aria-live="polite">
-        <p class="rotulo">Valor final de venda sugerido</p>
+    <div class="coluna-resultado">
+      <section class="card card-resultado" id="card-resultado" aria-live="polite">
+        <p class="res-rotulo">Preço de venda sugerido</p>
         <p id="preco" class="preco">—</p>
         <p id="preco-arred" class="arred"></p>
         <p id="erro" class="erro" hidden></p>
 
-        <table class="detalhe" id="detalhe">
-          <tbody></tbody>
-        </table>
-        <p id="outro-modo" class="dica"></p>
-      </div>
+        <dl class="detalhe" id="detalhe"></dl>
+        <p id="outro-modo" class="dica dica-centro"></p>
+      </section>
 
-      <div class="card">
-        <h2>Comparativo entre marketplaces</h2>
-        <div class="tabela-scroll">
-          <table class="comparativo" id="comparativo">
-            <thead>
-              <tr><th>Marketplace</th><th>Preço</th><th>Taxas</th><th>Frete</th><th>Lucro</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+      <section class="card">
+        <div class="card-cab">
+          <h2 class="card-titulo">Comparativo</h2>
+          <span class="dica">mesmo custo e margem</span>
         </div>
-        <p class="dica">Mesmo custo e margem. Shopee, TikTok Shop e Temu consideram frete R$ 0 (já coberto pelo programa de frete grátis), exceto quando é o marketplace selecionado.</p>
-      </div>
+        <ul class="comparativo" id="comparativo"></ul>
+        <p class="dica">Shopee, TikTok Shop e Temu usam frete R$ 0 (coberto pelo programa de frete grátis), exceto quando selecionados.</p>
+      </section>
 
-      <div class="card">
-        <h2>Seu histórico nesta plataforma</h2>
+      <section class="card">
+        <h2 class="card-titulo">Nosso histórico <span id="historico-nome" class="titulo-sec"></span></h2>
         <dl id="historico" class="kpis"></dl>
         <p id="historico-meta" class="dica"></p>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 
   <footer class="wrap rodape">
-    <p>Valores de referência. Confirme sempre a tarifa exata no painel do vendedor de cada plataforma (categoria, reputação e campanhas alteram a cobrança).</p>
+    <p>Valores de referência. Confirme a tarifa exata no painel do vendedor: categoria, reputação e campanhas alteram a cobrança.</p>
   </footer>
+
+  <button type="button" class="barra-preco" id="barra-preco" aria-label="Ver detalhes do preço">
+    <span>Preço sugerido</span>
+    <strong id="barra-preco-valor">—</strong>
+  </button>
 
   <script src="js/regras.js"></script>
   <script src="js/historico.js"></script>
